@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ltn Chat | Private Local AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --bg: #030712;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f9fafb;
+            --text-dim: #9ca3af;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Ambient Background Shadows */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: move 20s infinite alternate;
+        }
+
+        .blob-1 {
+            top: -100px;
+            right: -100px;
+        }
+
+        .blob-2 {
+            bottom: -100px;
+            left: -100px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%);
+        }
+
+        @keyframes move {
+            from {
+                transform: translate(0, 0);
+            }
+
+            to {
+                transform: translate(100px, 100px);
+            }
+        }
+
+        /* Header */
+        nav {
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Hero Section */
+        section.hero {
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+            animation: slideUp 1s ease-out;
+        }
+
+        .cta-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            animation: slideUp 1.2s ease-out;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 6rem auto;
+            padding: 0 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .card p {
+            color: var(--text-dim);
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .cta-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <div class="logo">LTN CHAT</div>
+    </nav>
+
+    <section class="hero">
+        <h1>Your Private AI,<br>Right in your Browser.</h1>
+        <p>A premium extension for seamless interaction with local LLMs. No internet required, no data collection, 100%
+            privacy.</p>
+
+        <div class="cta-container">
+            <a href="https://github.com/ltnproject/LtnAI/releases/download/Files/LtnAI.Extension.rar"
+                class="btn btn-primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download LtnAI.Extension.rar
+            </a>
+            <a href="https://github.com/ltnproject/LtnAI/releases/download/Files/LtnSetup.bat"
+                class="btn btn-secondary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+                Download Setup
+            </a>
+        </div>
+    </section>
+
+    <div id="features" class="features">
+        <div class="card">
+            <h3>🔒 Total Privacy</h3>
+            <p>Runs entirely on your machine via WSL. Your chats never leave your local environment.</p>
+        </div>
+        <div class="card">
+            <h3>⚡ Lightning Fast</h3>
+            <p>Optimized for local performance with llama.cpp. Experience real-time streaming responses.</p>
+        </div>
+        <div class="card">
+            <h3>🎨 Premium UI</h3>
+            <p>Modern glassmorphism design with full markdown support and beautiful code blocks.</p>
+        </div>
+    </div>
+
+    <section class="setup-guide" id="setup">
+        <h2 class="section-title">🚀 How to Get Started</h2>
+        <p style="text-align: center; margin-bottom: 1rem; color: var(--text-dim);">
+            For the complete source code and more detailed guides, visit the
+            <a href="https://github.com/ltnproject/LtnAI"
+                style="color: var(--primary); text-decoration: none; font-weight: 600;">LtnAI Repository</a>.
+        </p>
+        <p class="section-subtitle">Follow these two simple steps to get your private AI up and running.</p>
+
+        <!-- Step 1 -->
+        <div class="setup-card">
+            <div class="step-badge">Phase 1</div>
+            <h3>🧩 Install the Extension</h3>
+            <p>First, get the Chrome extension files and load them into your browser.</p>
+
+            <div class="action-grid">
+                <div class="action-item">
+                    <span class="action-number">1</span>
+                    <p>Download and extract <a
+                            href="https://github.com/ltnproject/LtnAI/releases/download/Files/LtnWEBAssist.rar"
+                            class="link">LtnWEBAssist.rar</a></p>
+                </div>
+                <div class="action-item">
+                    <span class="action-number">2</span>
+                    <p>Open <code>chrome://extensions</code> in your browser</p>
+                </div>
+                <div class="action-item">
+                    <span class="action-number">3</span>
+                    <p>Enable <strong>Developer Mode</strong> and click <strong>Load Unpacked</strong></p>
+                </div>
+                <div class="action-item">
+                    <span class="action-number">4</span>
+                    <p>Select the folder you just extracted</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="setup-card">
+            <div class="step-badge">Phase 2</div>
+            <h3>🧠 Start the AI Server</h3>
+            <p>Your extension needs a "brain" to talk to. Choose one of the methods below:</p>
+
+            <div class="method-toggle">
+                <div class="method-option active">Method A: One-Click Setup (Highly Recommended)</div>
+            </div>
+
+            <div class="method-content">
+                <p>The easiest way. This script handles WSL, llama.cpp installation, and model downloading in one go.
+                </p>
+                <div class="action-list">
+                    <div class="list-item">
+                        <strong>1. Download Setup Script:</strong>
+                        Grab <a href="https://github.com/ltnproject/LtnAI/releases/download/Files/LtnSetup.bat"
+                            class="link">LtnSetup.bat</a> and place it in your folder.
+                    </div>
+                    <div class="list-item">
+                        <strong>2. Run it:</strong>
+                        Double-click <code>LtnSetup.bat</code>. It will install everything and download the AI model for
+                        you.
+                        <div class="warning-box">
+                            <p>⚠️ <strong>Note:</strong> If you see an error like the one below, you can safely ignore
+                                it and let the script continue.</p>
+                            <a href="https://i.ibb.co/b9jbHz4/Screenshot-2026-02-19-193329.png" target="_blank">
+                                <img src="https://i.ibb.co/b9jbHz4/Screenshot-2026-02-19-193329.png" alt="Setup Warning"
+                                    class="warning-img">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="list-item">
+                        <strong>3. Done:</strong>
+                        Once finished, your AI server will be ready to use with the extension!
+                        <div class="success-box">
+                            <p>✅ <strong>Success!</strong> Seeing the message below means your server is successfully
+                                set up and ready to go!</p>
+                            <a href="https://i.ibb.co/YBwb1BwC/Screenshot-2026-02-19-194435.png" target="_blank">
+                                <img src="https://i.ibb.co/YBwb1BwC/Screenshot-2026-02-19-194435.png"
+                                    alt="Server Success" class="success-img">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"><span>OR</span></div>
+
+            <div class="method-toggle">
+                <div class="method-option">Method B: Manual WSL Setup</div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">1. Install WSL Ubuntu</div>
+                <pre><code>wsl --install</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">2. Build llama.cpp</div>
+                <pre><code>sudo apt update && sudo apt install build-essential git cmake -y
+git clone https://github.com/ggerganov/llama.cpp
+cd llama.cpp && mkdir build && cd build
+cmake .. && cmake --build . --config Release</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">3. Download & Merge Model</div>
+                <pre><code>mkdir -p ~/models
+# Download both parts
+curl -L -o ~/models/q4_km-00001-of-00002.gguf https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF/resolve/main/qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf
+curl -L -o ~/models/q4_km-00002-of-00002.gguf https://huggingface.co/Qwen/Qwen2.5-7B-Instruct-GGUF/resolve/main/qwen2.5-7b-instruct-q4_k_m-00002-of-00002.gguf
+# Merge using the built tool
+./build/bin/llama-gguf-split --merge ~/models/q4_km-00001-of-00002.gguf ~/models/Qwen2.5-7B-Instruct.Q4_K_M.gguf</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .section-title {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-dim);
+            margin-bottom: 4rem;
+            font-size: 1.1rem;
+        }
+
+        .setup-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 32px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            position: relative;
+            backdrop-filter: blur(20px);
+        }
+
+        .step-badge {
+            position: absolute;
+            top: -15px;
+            left: 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .setup-card h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .setup-card>p {
+            color: var(--text-dim);
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .action-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .action-number {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px solid transparent;
+            transition: 0.3s;
+        }
+
+        .link:hover {
+            border-bottom-color: var(--primary);
+        }
+
+        .method-toggle {
+            margin-bottom: 2rem;
+        }
+
+        .method-option {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .list-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1.25rem;
+            border-radius: 15px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 3rem 0;
+            position: relative;
+        }
+
+        .divider:before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--border);
+            z-index: 1;
+        }
+
+        .divider span {
+            position: relative;
+            z-index: 2;
+            background: #0b0e14;
+            /* Match card bg roughly or use bg color */
+            padding: 0 1.5rem;
+            color: var(--text-dim);
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .warning-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(234, 179, 8, 0.05);
+            border: 1px solid rgba(234, 179, 8, 0.2);
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+
+        .warning-box p {
+            margin-bottom: 0.75rem !important;
+            color: #fbbf24 !important;
+        }
+
+        .success-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px;
+            font-size: 0.85rem;
+        }
+
+        .success-box p {
+            margin-bottom: 0.75rem !important;
+            color: #10b981 !important;
+        }
+
+        .warning-img,
+        .success-img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            display: block;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: zoom-in;
+        }
+
+        .warning-img:hover,
+        .success-img:hover {
+            transform: scale(1.02);
+            border-color: var(--primary);
+        }
+
+        .setup-guide {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            text-align: left;
+        }
+
+        .setup-guide h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        .setup-step {
+            margin-bottom: 3rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 20px;
+        }
+
+        .setup-step h3 {
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        .setup-step p {
+            margin-bottom: 1rem;
+            color: var(--text-dim);
+        }
+
+        .setup-step ul {
+            margin-left: 1.5rem;
+            color: var(--text-dim);
+        }
+
+        .setup-step li {
+            margin-bottom: 0.5rem;
+        }
+
+        .code-block {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .code-header {
+            background: #111;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            font-family: monospace;
+        }
+
+        pre {
+            padding: 1rem;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: #818cf8;
+            overflow-x: auto;
+        }
+
+        code {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+        }
+    </style>
+
+    <footer style="text-align: center; padding: 4rem 2rem; color: var(--text-dim); font-size: 0.9rem;">
+        <p style="margin-bottom: 1rem;">For more detailed information, visit <a
+                href="https://github.com/ltnproject/LtnAI"
+                style="color: var(--primary); text-decoration: none; font-weight: 600;">github.com/ltnproject/LtnAI</a>
+        </p>
+        &copy; 2026 Ltn Project. Built for privacy and power.
+    </footer>
+</body>
+
+</html>
